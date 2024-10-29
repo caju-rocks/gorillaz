@@ -1,0 +1,47 @@
+name: Deploy Laravel App
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PUSH_TOKEN }}
+
+      - name: Set Up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '12.x'
+
+      - name: NPM Install
+        run: |
+          npm install
+
+      - name: NPM Production
+        run: |
+          npm run production
+
+      - name: Commit built assets
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git checkout -B deploy
+          git add -f public/
+          git commit -m "build front-end assets"
+          git push -f origin deploy
+
+      - name: Deploy to production
+        uses: appleboy/ssh-action@master
+        with:
+          username: ubuntu
+          host: dev.caju.dev.br
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/dev.caju.dev.br && ./prod_deploy.sh
