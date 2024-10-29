@@ -44,4 +44,4 @@ jobs:
           host: dev.caju.dev.br
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /var/www/dev.caju.dev.br && ./prod_deploy.sh
+            cd /var/www/dev.caju.dev.br && ./prod-deploy.sh
